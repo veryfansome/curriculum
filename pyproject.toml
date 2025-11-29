@@ -1,0 +1,14 @@
+[project]
+name = "curriculum"
+version = "0.1.0"
+description = "Project for building a pretraining curriculum for nanochat"
+requires-python = ">=3.12"
+dependencies = [
+    "inflect",
+    "nltk",
+    "num2words",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
