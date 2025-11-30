@@ -18,48 +18,25 @@ SUPERSCRIPT_MAP = {
     "-": "⁻"
 }
 
-def addition_examples(a, b, c) -> list[str]:
-    stmts = [
-        f"Add {a} to {b} to get {c}.",
-        f"Adding {a} and {b} {random.choice(['gets', 'results in', 'yields'])} {c}.",
-        f"The {random.choice(['sum', 'total'])} of {a} and {b} {random.choice(['is', 'equals'])} {c}.",
-        f"{a} {random.choice(['added to', 'plus'])} {b} {random.choice(['is', 'equals'])} {c}.",
-        f"{c} equals {a} plus {b}.",
-        f"{c} is the sum of {a} and {b}.",
-    ]
-    if a > 0 and b > 0:
-        stmts += [
-            f"{random_euclidean_qualifier(capitalize=True)}, a rectangle with a width of {a} and a height of {b} has a perimeter {random.choice(['of', 'equal to'])} {2 * c}.",
-        ]
-    if b > 0:
-        stmts += [
-            f"Increase {a} by {b} to get {c}",
-            f"Increasing {a} by {b} {random.choice(['gets', 'results in', 'yields'])} {c}",
-            f"{c} is {b} more than {a}",
-        ]
-    a, b = parenthesize_if_negative(a, b)
-    stmts += [
-        f"{a} + {b} = {c}",
-    ]
-    return stmts
 
-
-def division_examples(a, b, q, r, f) -> list[str]:
+def a_divided_by_b_examples(a, b, q, r, f) -> list[str]:
+    """Generates examples, given that a / b = q + r/b, which has a float value of f."""
     stmts = []
     if q == 0 and r > 0:
         # Fraction
+        perc = f * 100
         ab_gcd = math.gcd(a, b)
         a_simplified = a // ab_gcd
         b_simplified = b // ab_gcd
         stmts += [
-            f"The greatest common denominator of {a} and {b} is {ab_gcd}",
+            f"The greatest common divisor of {a} and {b} is {ab_gcd}.",
             f"{a} % {b} = {r}",
             f"{a} // {b} = 0",
             f"{a} ÷ {b} = {a}{random_division_sign(exclude={'÷'})}{b}",
         ]
         if ab_gcd != 1:  # Can be reduced
             stmts += [
-                f"The ratio of {a} to {b} is {random.choice([f, f'{a_simplified}:{b_simplified}'])}",
+                f"The ratio of {a} to {b} is {a_simplified}:{b_simplified}.",
                 f"{a} / {b} = {a_simplified}/{b_simplified}".replace("/", random_division_sign(exclude={'÷'})),
                 f"{a}/{b} = {a_simplified}/{b_simplified}".replace("/", random_division_sign(exclude={'÷'})),
                 f"{a}/{b} {random.choice(['reduces', 'simplifies'])} to {a_simplified}/{b_simplified}.".replace("/", random_division_sign(exclude={'÷'})),
@@ -74,13 +51,25 @@ def division_examples(a, b, q, r, f) -> list[str]:
 
         if is_denominator_of_terminating_decimal(b_simplified):
             stmts += [
-                f"{a} divided by {b} {random.choice(['is', 'equals'])} {f}.",
+                f"The ratio of {a} to {b} is {f}.",
+                f"{a_simplified}/{b_simplified} = {perc}%",
+                f"{a} divided by {b} {random.choice(['equals', 'is'])} {f}.",
                 f"{a} {random_division_sign()} {b} = {f}",
+                f"{a}/{b} = {perc}%",
+                f"{to_superscript(a)}⁄{to_subscript(b)} = {perc}%",
+                f"{to_superscript(a_simplified)}⁄{to_subscript(b_simplified)} = {perc}%",
+                f"{to_superscript(r)}⁄{to_subscript(b)} = {f}",
             ]
         else:
             stmts += [
-                f"{a} divided by {b} {random.choice(['is', 'equals'])} approximately {f}.",
+                f"The ratio of {a} to {b} is {random.choice(['approximately', 'roughly'])} {f}.",
+                f"{a_simplified}/{b_simplified} ≈ {perc}%",
+                f"{a} divided by {b} {random.choice(['equals', 'is'])} {random.choice(['approximately', 'roughly'])} {f}.",
                 f"{a} {random_division_sign()} {b} ≈ {f}",
+                f"{a}/{b} ≈ {perc}%",
+                f"{to_superscript(a)}⁄{to_subscript(b)} ≈ {perc}%",
+                f"{to_superscript(a_simplified)}⁄{to_subscript(b_simplified)} ≈ {perc}%",
+                f"{to_superscript(r)}⁄{to_subscript(b)} ≈ {f}",
             ]
 
     elif r == 0:
@@ -98,46 +87,179 @@ def division_examples(a, b, q, r, f) -> list[str]:
         q_word = num2words(q)
         q_ordinal = num2words(q, to='ordinal')
         stmts += [
-            f"The ratio of {a} to {b} is {q}",
-            f"the quotient of {a} and {b} {random.choice(['is', 'equals'])} {q}.",
-            f"{a} divided by {b} {random.choice(['is', 'equals'])} {q}.",
+            f"The quotient of {a} and {b} {random.choice(['equals', 'is'])} {q}.",
+            f"The ratio of {a} to {b} is {q}.",
+            f"{a} divided by {b} {random.choice(['equals', 'is'])} {q}.",
             f"{a} {random.choice(['is divisible by', 'is a multiple of'])} {b}.",
-            f"{a} {random.choice(['is divisible by', 'is a multiple of'])} {q}.",
             f"{a} {random_division_sign()} {b} = {q}",
-            f"{b} {random.choice(['divides', 'is a divisor of', 'is a factor of'])} {a}.",
-            f"{q} {random.choice(['divides', 'is a divisor of', 'is a factor of'])} {a}.",
         ]
         if a != 0:
             stmts += [
                 f"{a} is {q_word} {random.choice(['times', 'times as much as'])} {b}.",
                 f"{b} goes into {a}, {q} times.",
+                f"{b} {random.choice(['divides', 'is a divisor of', 'is a factor of'])} {a}.",
+                f"{q} {random.choice(['divides', 'is a divisor of', 'is a factor of'])} {a}.",
             ]
             if q > 2:
                 stmts.append(f"{b} is one-{q_ordinal} of {a}.")
+        if q != 0:
+            stmts.append(f"{a} {random.choice(['is divisible by', 'is a multiple of'])} {q}.")
     else:
         # Euclidean division
         ab_gcd = math.gcd(a, b)
         a_simplified = a // ab_gcd
         b_simplified = b // ab_gcd
+        rb_gcd = math.gcd(r, b)
+        r_simplified = r // rb_gcd
+        r_b_simplified = b // rb_gcd
         stmts += [
-            f"The greatest common denominator of {a} and {b} is {ab_gcd}",
-            f"The ratio of {a} to {b} is {random.choice([f, f'{a_simplified}:{b_simplified}'])}",
+            f"The greatest common divisor of {a} and {b} is {ab_gcd}.",
+            f"The ratio of {a} to {b} is {a_simplified}:{b_simplified}.",
             f"{a} % {b} = {r}",
             f"{a} // {b} = {q}",
-            f"{a} divided by {b} {random.choice(['is', 'equals'])} {q} with a remainder of {r}.",
+            f"{a} divided by {b} {random.choice(['equals', 'is'])} {q} with a remainder of {r}.",
+            f"{a} divided by {b} {random.choice(['equals', 'is'])} {q}{to_superscript(r_simplified)}⁄{to_subscript(r_b_simplified)}.",
+            f"{a} ⁄ {b} = {q}{to_superscript(r_simplified)}⁄{to_subscript(r_b_simplified)}",
             f"{b} goes into {a}, {q} times with a remainder of {r}.",
             f"{b} is not a factor of {a}.",
         ]
-        if is_denominator_of_terminating_decimal(b_simplified):
+        if is_denominator_of_terminating_decimal(r_b_simplified):
             stmts += [
-                f"{a} divided by {b} {random.choice(['is', 'equals'])} {f}.",
+                f"The ratio of {a} to {b} is {f}.",
+                f"{a} divided by {b} {random.choice(['equals', 'is'])} {f}.",
                 f"{a} {random_division_sign()} {b} = {f}",
+                f"{q}{to_superscript(r_simplified)}⁄{to_subscript(r_b_simplified)} = {f}",
             ]
         else:
             stmts += [
-                f"{a} divided by {b} is approximately {f}.",
+                f"The ratio of {a} to {b} is {random.choice(['approximately', 'roughly'])} {f}.",
+                f"{a} divided by {b} is {random.choice(['approximately', 'roughly'])} {f}.",
                 f"{a} {random_division_sign()} {b} ≈ {f}",
+                f"{q}{to_superscript(r_simplified)}⁄{to_subscript(r_b_simplified)} ≈ {f}",
             ]
+    return stmts
+
+
+def a_minus_b_examples(a, b, c) -> list[str]:
+    """Generates examples, given that a - b = c."""
+    stmts = [
+        f"Subtract {b} from {a} to get {c}.",
+        f"Subtracting {b} from {a} {random.choice(['gets', 'results in', 'yields'])} {c}.",
+        f"{a} minus {b} {random.choice(['equals', 'is'])} {c}.",
+    ]
+    if a > b:
+        stmts.append(f"The absolute difference between {a} and {b} {random.choice(['equals', 'is'])} {abs(c)}.")
+    if b > 0:
+        stmts += [
+            f"Decrease {a} by {b} to get {c}.",
+            f"Decreasing {a} by {b} {random.choice(['gets', 'results in', 'yields'])} {c}.",
+            f"Take {b} away from {a} to get {c}.",
+            f"Taking {b} away from {a} {random.choice(['gets', 'results in', 'yields'])} {c}.",
+            f"{c} equals {a} minus {b}.",
+            f"{c} is {b} less than {a}.",
+        ]
+    a, b = parenthesize_if_negative(a, b)
+    stmts.append(f"{a} - {b} = {c}")
+    return stmts
+
+
+def a_plus_b_examples(a, b, c) -> list[str]:
+    """Generates examples, given that a + b = c."""
+    stmts = [
+        f"Add {a} to {b} to get {c}.",
+        f"Add {b} to {a} to get {c}.",
+        f"Adding {a} and {b} {random.choice(['gets', 'makes', 'results in', 'yields'])} {c}.",
+        f"Adding {b} and {a} {random.choice(['gets', 'makes', 'results in', 'yields'])} {c}.",
+        f"Subtract {a} from {c} to get {b}.",
+        f"Subtract {b} from {c} to get {a}.",
+        f"Subtracting {a} from {c} {random.choice(['gets', 'makes', 'results in', 'yields'])} {b}.",
+        f"Subtracting {b} from {c} {random.choice(['gets', 'makes', 'results in', 'yields'])} {a}.",
+        f"The result of summing {a} and {b} is {c}.",
+        f"The result of summing {b} and {a} is {c}.",
+        f"The {random.choice(['sum', 'total'])} of {a} and {b} {random.choice(['equals', 'is'])} {c}.",
+        f"The {random.choice(['sum', 'total'])} of {b} and {a} {random.choice(['equals', 'is'])} {c}.",
+        f"{a} {random.choice(['added to', 'plus'])} {b} {random.choice(['equals', 'is', 'makes'])} {c}.",
+        f"{b} {random.choice(['added to', 'plus'])} {a} {random.choice(['equals', 'is', 'makes'])} {c}.",
+        f"{c} is obtained by adding {a} and {b}.",
+        f"{c} is obtained by adding {b} and {a}.",
+        f"{c} {random.choice(['equals', 'is'])} the sum of {a} and {b}.",
+        f"{c} {random.choice(['equals', 'is'])} the sum of {b} and {a}.",
+    ]
+    if a > 0:
+        stmts += [
+            f"Increase {b} by {a} to get {c}.",
+            f"Increasing {b} by {a} {random.choice(['gets', 'results in', 'yields'])} {c}.",
+            f"{c} is {a} more than {b}.",
+            f"{c} {random.choice(['equals', 'is'])} {b} {random.choice(['increased by', 'plus'])} {a}.",
+        ]
+    if b > 0:
+        stmts += [
+            f"Increase {a} by {b} to get {c}.",
+            f"Increasing {a} by {b} {random.choice(['gets', 'results in', 'yields'])} {c}.",
+            f"{c} is {b} more than {a}.",
+            f"{c} {random.choice(['equals', 'is'])} {a} {random.choice(['increased by', 'plus'])} {b}.",
+        ]
+    if a > 0 and b > 0:
+        stmts += [
+            f"{random_euclidean_qualifier(capitalize=True)}, a rectangle with a width of {a} and a height of {b} has a perimeter {random.choice(['of', 'equal to'])} {2 * c}.",
+            f"{random_euclidean_qualifier(capitalize=True)}, a rectangle with a width of {b} and a height of {a} has a perimeter {random.choice(['of', 'equal to'])} {2 * c}.",
+        ]
+    a, b = parenthesize_if_negative(a, b)
+    stmts += [
+        f"{a} + {b} = {c}",
+        f"{b} + {a} = {c}",
+        f"{c} - {a} = {b}",
+        f"{c} - {b} = {a}",
+    ]
+    return stmts
+
+
+def a_times_b_examples(a, b, c) -> list[str]:
+    """Generates examples, given that a * b = c."""
+    ab_lcm = math.lcm(a, b)
+    stmts = [
+        f"Multiply {a} {random.choice(['and', 'by'])} {b} to get {c}.",
+        f"Multiply {b} {random.choice(['and', 'by'])} {a} to get {c}.",
+        f"Multiplying {a} and {b} {random.choice(['gets', 'results in', 'yields'])} {c}.",
+        f"Multiplying {b} and {a} {random.choice(['gets', 'results in', 'yields'])} {c}.",
+        f"The product of {a} and {b} {random.choice(['equals', 'is'])} {c}.",
+        f"The product of {b} and {a} {random.choice(['equals', 'is'])} {c}.",
+        f"{a} times {b} {random.choice(['equals', 'is'])} {c}.",
+        f"{b} times {a} {random.choice(['equals', 'is'])} {c}.",
+        f"{c} {random.choice(['equals', 'is'])} {a} {random.choice(['multiplied by', 'times'])} {b}.",
+        f"{c} {random.choice(['equals', 'is'])} {b} {random.choice(['multiplied by', 'times'])} {a}.",
+    ]
+    if a > 0:
+        stmts += [
+            f"Divide {c} by {a} to get {b}.",
+            f"Dividing {c} by {a} {random.choice(['gets', 'results in', 'yields'])} {b}.",
+            f"The quotient of {c} and {a} {random.choice(['equals', 'is'])} {b}.",
+            f"{b} repeated {a} times {random.choice(['equals', 'is'])} {c}.",
+            f"{c} divided by {a} {random.choice(['equals', 'is'])} {b}.",
+            f"{c} {random_division_sign()} {a} = {b}",
+        ]
+    if b > 0:
+        stmts += [
+            f"Divide {c} by {b} to get {a}.",
+            f"Dividing {c} by {b} {random.choice(['gets', 'results in', 'yields'])} {a}.",
+            f"The quotient of {c} and {b} {random.choice(['equals', 'is'])} {a}.",
+            f"{a} repeated {b} times {random.choice(['equals', 'is'])} {c}.",
+            f"{c} divided by {b} {random.choice(['equals', 'is'])} {a}.",
+            f"{c} {random_division_sign()} {b} = {a}",
+        ]
+    if a > 0 and b > 0:
+        stmts += [
+            f"Scale {a} by a factor of {b} to get {c}.",
+            f"The least common multiple of {a} and {b} {random.choice(['equals', 'is'])} {ab_lcm}.",
+            f"{b} groups of {a} {random.choice(['equals', 'is'])} {c}.",
+            f"{random_euclidean_qualifier(capitalize=True)}, a rectangle with a width of {a} and a height of {b} has an area {random.choice(['of', 'equal to'])} {c}.",
+            f"{random_euclidean_qualifier(capitalize=True)}, a triangle with a base of {a} and a height of {b} has an area {random.choice(['of', 'equal to'])} {c / 2 if c % 2 != 0 else c // 2}.",
+        ]
+    a, b = parenthesize_if_negative(a, b)
+    stmts += [
+        f"{a} {random_multiplication_sign()} {b} = {c}",
+        f"{b} {random_multiplication_sign()} {a} = {c}",
+    ]
     return stmts
 
 
@@ -149,37 +271,33 @@ def examples_from_natural_number_pair(pair: tuple[int, int]) -> list[str]:
     ab_product = a * b
 
     # Addition
-    stmts += addition_examples(a, b, ab_sum)
-    stmts += addition_examples(-a, b, (-a) + b)
-    stmts += addition_examples(a, -b, a + (-b))
-    stmts += addition_examples(-a, -b, (-a) + (-b))
+    stmts += a_plus_b_examples(a, b, ab_sum)
+    stmts += a_plus_b_examples(-a, b, (-a) + b)
+    stmts += a_plus_b_examples(a, -b, a + (-b))
+    stmts += a_plus_b_examples(-a, -b, (-a) + (-b))
 
     # Subtraction
-    stmts += subtraction_examples(a, b, a - b)
-    stmts += subtraction_examples(-a, b, (-a) - b)
-    stmts += subtraction_examples(a, -b, a - (-b))
-    stmts += subtraction_examples(-a, -b, (-a) - (-b))
+    stmts += a_minus_b_examples(a, b, a - b)
+    stmts += a_minus_b_examples(-a, b, (-a) - b)
+    stmts += a_minus_b_examples(a, -b, a - (-b))
+    stmts += a_minus_b_examples(-a, -b, (-a) - (-b))
 
     # Multiplication
-    stmts += multiplication_examples(a, b, ab_product)
-    stmts += multiplication_examples(-a, b, (-a) * b)
-    stmts += multiplication_examples(a, -b, a * (-b))
-    stmts += multiplication_examples(-a, -b, (-a) * (-b))
+    stmts += a_times_b_examples(a, b, ab_product)
+    stmts += a_times_b_examples(-a, b, (-a) * b)
+    stmts += a_times_b_examples(a, -b, a * (-b))
+    stmts += a_times_b_examples(-a, -b, (-a) * (-b))
 
     if a != b:
-        stmts += subtraction_examples(b, a, b - a)
-
-        # Commutativity
-        stmts += addition_examples(b, a, ab_sum)
-        stmts += multiplication_examples(b, a, ab_product)
+        stmts += a_minus_b_examples(b, a, b - a)
 
     # Division
     if b != 0:
         ab_quotient, ab_remainder = divmod(a, b)
-        stmts += division_examples(a, b, ab_quotient, ab_remainder, a / b)
+        stmts += a_divided_by_b_examples(a, b, ab_quotient, ab_remainder, a / b)
     if a != 0:
         ba_quotient, ba_remainder = divmod(b, a)
-        stmts += division_examples(b, a, ba_quotient, ba_remainder, b / a)
+        stmts += a_divided_by_b_examples(b, a, ba_quotient, ba_remainder, b / a)
 
     # TODO: Euclidean geometry and more advanced math
     #   - Triangles: area, hypotenuse, etc.
@@ -203,7 +321,9 @@ def examples_from_natural_number(n: int) -> list[str]:
             f"{random_euclidean_qualifier(capitalize=True)}, a circle with a radius of {n} has an area {random.choice(['of', 'equal to'])} {random_exponent_expr(n, 2)} {random_multiplication_sign()} π.",
             f"{random_euclidean_qualifier(capitalize=True)}, a square with an area {random.choice(['of', 'equal to'])} {random_exponent_expr(n, 2)} has an edge length of {n}.",
             f"{random_euclidean_qualifier(capitalize=True)}, a square with an edge length of {n} has an area {random.choice(['of', 'equal to'])} {random_exponent_expr(n, 2)}.",
-            f"{n} {random_multiplication_sign()} {1 / n} = 1",
+            f"{n} {random_multiplication_sign()} 1/{n} = 1",
+            f"{n} {random_multiplication_sign()} {1 / n} ≈ 1",
+            f"{n} {random_multiplication_sign()} {to_superscript(1)}⁄{to_subscript(n)} = 1",
             f"|{-n}| = {n}",
             f"|{n}| = {n}",
         ]
@@ -216,15 +336,17 @@ def examples_from_natural_number(n: int) -> list[str]:
             case 2:
                 if not is_zero:
                     stmts += [
-                        f"{random_euclidean_qualifier(capitalize=True)}, a circle with a radius of {n} has an area roughly equal to {n_to_power * math.pi}.",
+                        f"{random_euclidean_qualifier(capitalize=True)}, a circle with a radius of {n} has an area {random.choice(['approximately', 'roughly'])} equal to {n_to_power * math.pi}.",
                         f"{random_euclidean_qualifier(capitalize=True)}, a circle with a radius of {n} has an area {random.choice(['of', 'equal to'])} {n_to_power}π.",
                         f"{random_euclidean_qualifier(capitalize=True)}, a square with a side length of {n} has an area {random.choice(['of', 'equal to'])} {n_to_power}.",
                         f"{random_euclidean_qualifier(capitalize=True)}, a square with an area {random.choice(['of', 'equal to'])} {n_to_power} has a side length of {n}.",
+                        f"{random_euclidean_qualifier(d=3, capitalize=True)}, a sphere with a radius of {n} has a surface area {random.choice(['approximately', 'roughly'])} equal to {4  * n_to_power * math.pi}.",
+                        f"{random_euclidean_qualifier(d=3, capitalize=True)}, a sphere with a radius of {n} has a surface area {random.choice(['of', 'equal to'])} {4 * n_to_power}π.",
                     ]
                 stmts += [
-                    f"The principal square root of {n_to_power} {random.choice(['is', 'equals'])} {n}.",
+                    f"The principal square root of {n_to_power} {random.choice(['equals', 'is'])} {n}.",
                     f"{n} is the principal square root of {n_to_power}.",
-                    f"{n} raised to the 2nd power {random.choice(['is', 'equals'])} {n_to_power}.",
+                    f"{n} raised to the 2nd power {random.choice(['equals', 'is'])} {n_to_power}.",
                     f"{n} squared is {n_to_power}.",
                 ]
             case 3:
@@ -232,26 +354,28 @@ def examples_from_natural_number(n: int) -> list[str]:
                     stmts += [
                         f"{random_euclidean_qualifier(d=3, capitalize=True)}, a cube with an edge length of {n} has a volume {random.choice(['of', 'equal to'])} {n_to_power}.",
                         f"{random_euclidean_qualifier(d=3, capitalize=True)}, a cube with an edge length of {n} has {random.choice(['6', 'six'])} faces, each with an area {random.choice(['of', 'equal to'])} {n ** 2}.",
+                        f"{random_euclidean_qualifier(d=3, capitalize=True)}, a sphere with a radius of {n} has a volume {random.choice(['approximately', 'roughly'])} equal to {(4/3) * n_to_power * math.pi}.",
+                        f"{random_euclidean_qualifier(d=3, capitalize=True)}, a sphere with a radius of {n} has a volume {random.choice(['of', 'equal to'])} {(4/3) * n_to_power}π.",
                     ]
                 stmts += [
-                    f"The cube root of {n_to_power} {random.choice(['is', 'equals'])} {n}.",
-                    f"{n} cubed {random.choice(['is', 'equals'])} {n_to_power}.",
+                    f"The cube root of {n_to_power} {random.choice(['equals', 'is'])} {n}.",
+                    f"{n} cubed {random.choice(['equals', 'is'])} {n_to_power}.",
                     f"{n} is the cube root of {n_to_power}.",
-                    f"{n} raised to the 3rd power {random.choice(['is', 'equals'])} {n_to_power}.",
+                    f"{n} raised to the 3rd power {random.choice(['equals', 'is'])} {n_to_power}.",
                 ]
         if power > 1:
             power_ordinal = num2words(power, to='ordinal')
             stmts += [
-                f"The {power_ordinal} root of {n_to_power} {random.choice(['is', 'equals'])} {n}.",
+                f"The {power_ordinal} root of {n_to_power} {random.choice(['equals', 'is'])} {n}.",
                 f"{n} is the {power_ordinal} root of {n_to_power}.",
-                f"{n} raised to the {power_ordinal} power {random.choice(['is', 'equals'])} {n_to_power}.",
-                f"{n} to the power of {power} {random.choice(['is', 'equals'])} {n_to_power}.",
+                f"{n} raised to the {power_ordinal} power {random.choice(['equals', 'is'])} {n_to_power}.",
+                f"{n} to the power of {power} {random.choice(['equals', 'is'])} {n_to_power}.",
             ]
             if power > 3:
-                stmts.append(f"{n} raised to the {power}th power {random.choice(['is', 'equals'])} {n_to_power}.")
+                stmts.append(f"{n} raised to the {power}th power {random.choice(['equals', 'is'])} {n_to_power}.")
         stmts += [
             f"{random_exponent_expr(n, power)} = {n_to_power}",
-            f"{random_exponent_expr(n, power)} {random.choice(['is', 'equals'])} {n_to_power}.",
+            f"{random_exponent_expr(n, power)} {random.choice(['equals', 'is'])} {n_to_power}.",
         ]
     return stmts
 
@@ -269,12 +393,12 @@ def generate_corpus() -> set[str]:
 
         "An even number is divisible by two.",
         "An odd number is not divisible by two.",
-        "Adding two even number always results in an even number.",
-        "Adding two odd number always results in an even number.",
+        "Adding two even numbers always results in an even number.",
+        "Adding two odd numbers always results in an even number.",
         "The sum of two even numbers is always an even number.",
         "The sum of two odd numbers is always an even number.",
         "Multiplying by an even number always results in an even number.",
-        "Multiplying two odd number always results in an odd number.",
+        "Multiplying two odd numbers always results in an odd number.",
         "The product of two odd numbers is always an odd number.",
 
         "With whole numbers, multiplication is adding the same number together multiple times.",
@@ -295,6 +419,13 @@ def generate_corpus() -> set[str]:
         # TODO: division
         "A number is prime if its only positive divisors are 1 and itself.",
         "A fractional number is used to represent parts of a whole.",
+
+        "A space is Euclidean if it has zero intrinsic curvature.",
+        f"In Euclidean space, a unique straight line can be drawn between any two distinct points, and this line can be extended indefinitely in either direction.",
+        f"In Euclidean space, distances are calculated using the Pythagorean theorem, and they remain invariant under transformations like translations and rotations.",
+        f"In Euclidean space, sum of the interior angles of any triangle is always equal to 180{random.choice([' degrees', '°'])}.",
+        f"In Euclidean space, basic geometric transformations such as {random.choice(['shifting', 'translations'])} and {random.choice(['rotations', 'turning'])} are defined, and the space behaves according to these rules everywhere.",
+        f"In Euclidean space, the Riemann curvature tensor is zero.",
     ])
     return docs
 
@@ -355,28 +486,6 @@ def is_prime(number: int):
     return True
 
 
-def multiplication_examples(a, b, c) -> list[str]:
-    ab_lcm = math.lcm(a, b)
-    stmts = [
-        f"Multiply {a} {random.choice(['and', 'by'])} {b} to get {c}.",
-        f"Multiplying {a} and {b} {random.choice(['gets', 'results in', 'yields'])} {c}.",
-        f"The product of {a} and {b} {random.choice(['is', 'equals'])} {c}.",
-        f"{a} repeated {b} times {random.choice(['is', 'equals'])} {c}.",
-        f"{a} {random.choice(['groups of', 'times'])} {b} {random.choice(['is', 'equals'])} {c}.",
-        f"{c} {random.choice(['is', 'equals'])} {a} {random.choice(['multiplied by', 'times'])} {b}.",
-    ]
-    if a > 0 and b > 0:
-        stmts += [
-            f"Scale {a} by a factor of {b} to get {c}.",
-            f"The least common multiple of {a} and {b} {random.choice(['is', 'equals'])} {ab_lcm}.",
-            f"{random_euclidean_qualifier(capitalize=True)}, a rectangle with a width of {a} and a height of {b} has an area {random.choice(['of', 'equal to'])} {c}.",
-            f"{random_euclidean_qualifier(capitalize=True)}, a triangle with a base of {a} and a height of {b} has an area {random.choice(['of', 'equal to'])} {c / 2 if c % 2 != 0 else c // 2}.",
-        ]
-    a, b = parenthesize_if_negative(a, b)
-    stmts.append(f"{a} {random_multiplication_sign()} {b} = {c}")
-    return stmts
-
-
 def parenthesize_if_negative(a: int, b: int) -> tuple[str, str]:
     return f"({a})" if a < 0 else str(a), f"({b})" if b < 0 else str(b)
 
@@ -400,28 +509,6 @@ def random_exponent_expr(n, power):
 def random_multiplication_sign(exclude: set[str] = None):
     default = ["*", "×", "x", "·"]
     return random.choice(default if exclude is None else [s for s in default if s not in exclude])
-
-
-def subtraction_examples(a, b, c) -> list[str]:
-    stmts = [
-        f"Subtract {b} from {a} to get {c}.",
-        f"Subtracting {b} from {a} {random.choice(['gets', 'results in', 'yields'])} {c}.",
-        f"{a} minus {b} {random.choice(['is', 'equals'])} {c}.",
-    ]
-    if a > b:
-        stmts.append(f"The difference between {a} and {b} {random.choice(['is', 'equals'])} {c}.")
-    if b > 0:
-        stmts += [
-            f"Decrease {a} by {b} to get {c}.",
-            f"Decreasing {a} by {b} {random.choice(['gets', 'results in', 'yields'])} {c}.",
-            f"Take {b} away from {a} to get {c}.",
-            f"Taking {b} away from {a} {random.choice(['gets', 'results in', 'yields'])} {c}.",
-            f"{c} equals {a} minus {b}.",
-            f"{c} is {b} less than {a}.",
-        ]
-    a, b = parenthesize_if_negative(a, b)
-    stmts.append(f"{a} - {b} = {c}")
-    return stmts
 
 
 def to_subscript(val):
