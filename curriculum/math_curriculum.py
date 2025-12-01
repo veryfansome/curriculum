@@ -41,22 +41,38 @@ def a_b_comparison_examples(_a, _b, a: str = None, b: str = None) -> list[str]:
 def a_b_division_examples(a, b) -> list[str]:
     """Generate examples that must be true, given that a / b = q + r/b, which has a float value of f."""
     assert b != 0, "Can't divide by zero"
+    a_abs = abs(a)
     b_abs = abs(b)                      # Euclidean divisor (always positive)
     q_b_abs, r = divmod(a, b_abs)       # ensures 0 <= r < b_abs
     q = q_b_abs if b > 0 else -q_b_abs  # ensures a = (b * q) + r
     f = a / b                           # sign-correct numeric value
 
     # Simplify with positive denominator
-    a_simplified, b_simplified, ab_gcd = normalize_fraction(a, b)
-    r_simplified, b_abs_simplified, rb_gcd = normalize_fraction(r if b > 0 else -r, b_abs)
+    a_norm, b_norm, ab_gcd = normalize_fraction(a, b)
+    r_norm, rb_norm, rb_gcd = normalize_fraction(r if b > 0 else -r, b_abs)
 
     # Always true
     stmts = [
-        f"{a} = {parenthesize_if_negative(b)} {random_multiplication_sign()} {parenthesize_if_negative(q)} + {r}",
+        f"The ratio of {a} to {b} is {a_norm}:{b_norm}.",
+        f"{a} = {paren_if_neg(b)} {random_multiplication_sign()} {paren_if_neg(q)} + {r}",
+        f"{a}/{b} = {a_norm}/{b_norm}".replace("/", random_division_sign(exclude={'÷'})),
     ]
-    stmts += a_b_comparison_examples(0, r)
     stmts += a_b_comparison_examples(0, b_abs)
+    stmts += a_b_comparison_examples(0, r)
     stmts += a_b_comparison_examples(r, b_abs)
+    stmts += commutative_statements(f"The greatest common divisor of %s and %s is {ab_gcd}.", a, b)
+    stmts += commutative_statements(f"The greatest common divisor of %s and %s is {math.gcd(r, b_abs)}.", r, b_abs)
+
+    if f > 0:
+        stmts += [
+            f"{paren_if_neg(a)} ÷ {paren_if_neg(b)} = {a_abs}{random_division_sign(exclude={'÷'})}{b_abs}",
+            f"{paren_if_neg(a)} ÷ {paren_if_neg(b)} = {a_norm}{random_division_sign(exclude={'÷'})}{b_norm}",
+        ]
+    else:
+        stmts += [
+            f"{paren_if_neg(a)} ÷ {paren_if_neg(b)} = {-a_abs}{random_division_sign(exclude={'÷'})}{b_abs}",  # Needs -abs, not normalized
+            f"{paren_if_neg(a)} ÷ {paren_if_neg(b)} = {a_norm}{random_division_sign(exclude={'÷'})}{b_norm}",
+        ]
 
     return stmts
 
@@ -208,7 +224,7 @@ def a_b_multiplication_examples(a, b) -> list[str]:
             f"The quotient of {c} and {a} {random.choice(['equals', 'is'])} {b}.",
             f"{b} repeated {a} times {random.choice(['equals', 'is'])} {c}.",
             f"{c} divided by {a} {random.choice(['equals', 'is'])} {b}.",
-            f"{parenthesize_if_negative(c)} {random_division_sign()} {parenthesize_if_negative(a)} = {b}",
+            f"{paren_if_neg(c)} {random_division_sign()} {paren_if_neg(a)} = {b}",
         ]
     if b > 0:
         stmts += [
@@ -217,7 +233,7 @@ def a_b_multiplication_examples(a, b) -> list[str]:
             f"The quotient of {c} and {b} {random.choice(['equals', 'is'])} {a}.",
             f"{a} repeated {b} times {random.choice(['equals', 'is'])} {c}.",
             f"{c} divided by {b} {random.choice(['equals', 'is'])} {a}.",
-            f"{parenthesize_if_negative(c)} {random_division_sign()} {parenthesize_if_negative(b)} = {a}",
+            f"{paren_if_neg(c)} {random_division_sign()} {paren_if_neg(b)} = {a}",
         ]
     if a > 0 and b > 0:
         stmts += commutative_statements(f"%s and %s are factors of {c}.", a, b)
@@ -231,7 +247,7 @@ def a_b_multiplication_examples(a, b) -> list[str]:
             f"{random_euclidean_qualifier(capitalize=True)}, a rectangle with a width of {a} and a height of {b} has an area {random.choice(['of', 'equal to'])} {c}.",
             f"{random_euclidean_qualifier(capitalize=True)}, a triangle with a base of {a} and a height of {b} has an area {random.choice(['of', 'equal to'])} {c / 2 if c % 2 != 0 else c // 2}.",
         ]
-    stmts += commutative_statements(f"%s {random_multiplication_sign()} %s = {c}", parenthesize_if_negative(a), parenthesize_if_negative(b))
+    stmts += commutative_statements(f"%s {random_multiplication_sign()} %s = {c}", paren_if_neg(a), paren_if_neg(b))
     return stmts
 
 
@@ -256,8 +272,8 @@ def a_b_subtraction_examples(a, b) -> list[str]:
             f"{c} equals {a} minus {b}.",
             f"{c} is {b} less than {a}.",
         ]
-    stmts += commutative_statements(f"%s + %s = {a}", parenthesize_if_negative(b), parenthesize_if_negative(c))
-    stmts.append(f"{parenthesize_if_negative(a)} - {parenthesize_if_negative(b)} = {c}")
+    stmts += commutative_statements(f"%s + %s = {a}", paren_if_neg(b), paren_if_neg(c))
+    stmts.append(f"{paren_if_neg(a)} - {paren_if_neg(b)} = {c}")
     return stmts
 
 
@@ -295,10 +311,10 @@ def a_b_sum_examples(a, b) -> list[str]:
             *a_b_comparison_examples(c, a),
             *a_b_comparison_examples(c, b),
         ]
-    stmts += commutative_statements(f"%s + %s = {c}", parenthesize_if_negative(a), parenthesize_if_negative(b))
+    stmts += commutative_statements(f"%s + %s = {c}", paren_if_neg(a), paren_if_neg(b))
     stmts += [
-        f"{parenthesize_if_negative(c)} - {parenthesize_if_negative(a)} = {b}",
-        f"{parenthesize_if_negative(c)} - {parenthesize_if_negative(b)} = {a}",
+        f"{paren_if_neg(c)} - {paren_if_neg(a)} = {b}",
+        f"{paren_if_neg(c)} - {paren_if_neg(b)} = {a}",
     ]
     return stmts
 
@@ -476,7 +492,7 @@ def is_prime(number: int):
     return True
 
 
-def parenthesize_if_negative(n: int) -> str:
+def paren_if_neg(n: int) -> str:
     return f"({n})" if n < 0 else str(n)
 
 
@@ -522,3 +538,4 @@ if __name__ == "__main__":
     #print(corpus)
     #print(f"corpus length: {len(corpus)}")
     print(a_b_division_examples(10, -5))
+    #print(a_b_division_examples(-10, -5))
