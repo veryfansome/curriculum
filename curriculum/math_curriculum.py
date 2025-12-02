@@ -5,7 +5,6 @@ Conceptually, this is like memorizing multiplication tables early in childhood e
 import itertools
 import math
 import random
-from locale import normalize
 
 from num2words import num2words
 
