@@ -51,17 +51,27 @@ def a_b_division_examples(a, b) -> list[str]:
     a_norm, b_norm, ab_gcd = normalize_fraction(a, b)
     r_norm, rb_norm, rb_gcd = normalize_fraction(r if b > 0 else -r, b_abs)
 
-    # Always true
+    # Always safe
     stmts = [
         f"The ratio of {a} to {b} is {a_norm}:{b_norm}.",
-        f"{a} = {paren_if_neg(b)} {random_multiplication_sign()} {paren_if_neg(q)} + {r}",
         f"{a}/{b} = {a_norm}/{b_norm}".replace("/", random_division_sign(exclude={'÷'})),
+        f"{to_superscript(a)}⁄{to_subscript(b)} = {to_superscript(a_norm)}⁄{to_subscript(b_norm)}",
     ]
+    stmts += commutative_statements(f"The greatest common divisor of %s and %s is {ab_gcd}.", a, b)
+    stmts += commutative_statements(f"The greatest common divisor of %s and %s is {math.gcd(r, b_abs)}.", r, b_abs)
+
+    # In formal math, the remainder must be 0 ≤ remainder < |divisor|
+
+    # Can be check in tests
     stmts += a_b_comparison_examples(0, b_abs)
     stmts += a_b_comparison_examples(0, r)
     stmts += a_b_comparison_examples(r, b_abs)
-    stmts += commutative_statements(f"The greatest common divisor of %s and %s is {ab_gcd}.", a, b)
-    stmts += commutative_statements(f"The greatest common divisor of %s and %s is {math.gcd(r, b_abs)}.", r, b_abs)
+
+    if f == int(f):
+        stmts += [
+            f"{a}{random_division_sign(exclude={'÷'})}{b} = {int(f)}",
+            f"{to_superscript(a)}⁄{to_subscript(b)} = {int(f)}",
+        ]
 
     if f > 0:
         stmts += [
@@ -72,6 +82,21 @@ def a_b_division_examples(a, b) -> list[str]:
         stmts += [
             f"{paren_if_neg(a)} ÷ {paren_if_neg(b)} = {-a_abs}{random_division_sign(exclude={'÷'})}{b_abs}",  # Needs -abs, not normalized
             f"{paren_if_neg(a)} ÷ {paren_if_neg(b)} = {a_norm}{random_division_sign(exclude={'÷'})}{b_norm}",
+        ]
+
+    if r == 0:
+        # Perfect division
+        stmts += [
+            f"{a} = {paren_if_neg(b)} {random_multiplication_sign()} {paren_if_neg(q)}",
+        ]
+    elif q == 0 and r > 0:
+        # Proper fraction
+        stmts += [
+        ]
+    else:
+        # General Euclidean division with remainder
+        stmts += [
+            f"{a} = {paren_if_neg(b)} {random_multiplication_sign()} {paren_if_neg(q)} + {r}",
         ]
 
     return stmts
@@ -280,6 +305,13 @@ def a_b_subtraction_examples(a, b) -> list[str]:
 def a_b_sum_examples(a, b) -> list[str]:
     """Generate examples, given that a + b = c."""
     c = a + b
+
+    # Idea:
+    #   - "If a = {a} and b = {b}, then a + b = {c}."
+    #   - "If a = {a} and b = {b} and a + b = c, then c = {c}."
+    #   - "If a = {a} and c = {c} and a + b = c, then b = {b}."
+    #   - "If a + b = c, and a = {a} and c = {c}, then b = {b} because b = c - a."
+    #   - Try arbitrary variable names
 
     stmts = []
     stmts += commutative_statements(f"%s {random.choice(['added to', 'plus'])} %s {random.choice(['equals', 'is', 'makes'])} {c}.", a, b)
@@ -537,5 +569,10 @@ if __name__ == "__main__":
     #corpus = generate_corpus()
     #print(corpus)
     #print(f"corpus length: {len(corpus)}")
-    print(a_b_division_examples(10, -5))
-    #print(a_b_division_examples(-10, -5))
+
+    #print(f"{a_b_division_examples(-10, -5)}\n")
+    #print(f"{a_b_division_examples(-10, 5)}\n")
+    print(f"{a_b_division_examples(-2, -5)}\n")
+    #print(f"{a_b_division_examples(10, -5)}\n")
+    #print(f"{a_b_division_examples(10, 5)}\n")
+    print(f"{a_b_division_examples(2, -5)}\n")
